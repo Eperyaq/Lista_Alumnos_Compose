@@ -80,6 +80,7 @@ fun ventanaPrincipal(
 
         Column (modifier = Modifier
             .fillMaxSize()
+            .background(color = Color.Gray)
         ) {
             Row(modifier = Modifier
                 .width(800.dp)
