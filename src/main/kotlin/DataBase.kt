@@ -13,7 +13,7 @@ object DataBase {
         Class.forName("com.mysql.cj.jdbc.Driver")
     }
 
-    data class Estudiante(val nombre: String, val id:Int) //Crear la "tabla"
+    data class Estudiante(val name: String, val id:Int) //Crear la "tabla"
 
     /**
      * Funcion que establece la conexion con la base de datos
@@ -44,20 +44,29 @@ object DataBase {
     }
 
 
-    fun addStudent() {
+    fun addStudent(id: Int, name:String) {
         val conexion = connectDB()
+        val query = ("INSERT INTO STUDENTS(name, id) VALUES (?, ?)")
 
         try {
+            val statement = conexion?.prepareStatement(query)
 
-            println("Conexión exitosa")
-            conexion?.close()
+            statement?.setString(1,name)
+            statement?.setInt(2,id)
+
+            statement?.executeUpdate()
+            statement?.close()
+
         } catch (e: SQLException) {
-            println("Error en la conexión: ${e.message}")
-        } catch (e: ClassNotFoundException) {
-            println("No se encontró el driver JDBC: ${e.message}")
+            e.printStackTrace()
+        } finally {
+            closeDB(conexion)
         }
     }
 
+    /**
+     * Realiza una sentencia SELECT para sacar todos los estudiantes de la DB
+     */
     fun selectAllStudents(){
 
         val conexion = connectDB()
@@ -80,6 +89,55 @@ object DataBase {
         } catch (e: SQLException){
             e.printStackTrace()
         }  finally {
+            closeDB(conexion)
+        }
+
+    }
+
+    /**
+     * Realiza una sentencia UPDATE para cambiar a los estudiantes de la DB
+     * @param id ID nuevo que va a ser introducido en la tabla
+     * @param name Nombre nuevo que va a ser introducido en la tabla
+     */
+    fun updateStudents(id:Int, name:String){
+
+        val conexion = connectDB()
+        val query = ("UPDATE STUDENTS SET ID = ?, NAME = ?")
+
+        try {
+            val statement = conexion?.prepareStatement(query)//realizamos la conexion
+
+            statement?.setString(1, name)//le introducimos los valores
+            statement?.setInt(2, id)
+
+            statement?.executeUpdate()//le decimos que se ejecute
+            statement?.close() // y que cierre
+        } catch (e: SQLException) {
+             e.printStackTrace()
+        } finally {
+            closeDB(conexion)
+        }
+    }
+
+    /**
+     * Funcion que realiza una sentencia DELETE para eliminar a los estudiantes de la DB
+     * @param id ID por el que se va a buscar al estudiante para poder borrarlo de la DB
+     */
+    fun deleteStudents(id: Int){
+
+        val conexion = connectDB()
+        val query = ("DELETE FROM STUDENTS WHERE ID = ?")
+
+        try {
+            val statement = conexion?.prepareStatement(query)
+
+            statement?.setInt(1,id)
+            statement?.executeUpdate()
+            statement?.close()
+
+        } catch (e: SQLException){
+            e.printStackTrace()
+        } finally {
             closeDB(conexion)
         }
 

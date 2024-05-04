@@ -26,14 +26,19 @@ import javax.swing.Painter
 
 
 fun main() = application {
+
+    val gestionFicheros = GestionFicheros()
+
+
+
     val estado = rememberWindowState(size = DpSize(900.dp, 700.dp))
     val icon = BitmapPainter(useResource("IconoPredeterminado.png", ::loadImageBitmap))
 
-    mainWindow(estado= estado, onClose = { exitApplication() }, icono = icon)
+    mainWindow(estado= estado, onClose = { exitApplication() }, icono = icon, gestionFicheros)
 }
 
 @Composable
-fun mainWindow(estado: WindowState,onClose: () -> Unit, icono:BitmapPainter) {
+fun mainWindow(estado: WindowState,onClose: () -> Unit, icono:BitmapPainter, gestionFichero: GestionFicheros) {
 
 
 
@@ -52,7 +57,7 @@ fun mainWindow(estado: WindowState,onClose: () -> Unit, icono:BitmapPainter) {
                     .background(Color.Gray)
                     .fillMaxSize()
             ) {
-                ventanaPrincipal(fichero, focusRequester)
+                ventanaPrincipal(fichero, focusRequester, gestionFichero)
             }
         }
     }
@@ -62,21 +67,19 @@ fun mainWindow(estado: WindowState,onClose: () -> Unit, icono:BitmapPainter) {
 @Composable
 fun ventanaPrincipal(
     fichero : File,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    gestionFichero: GestionFicheros
 ) {
 
-    var nombre by remember { mutableStateOf("") } //Problema porque esto no puedo elevar el estado porque como lo cambio en el onValueChange...
+    var nombre by remember { mutableStateOf("") }
     var listaNombres = remember { mutableStateOf(mutableListOf<String>()) }
 
 
-
-
     LaunchedEffect(key1 = true) {  // key1 = true asegura que esto se ejecute solo una vez
-        listaNombres.value = fichero.readLines().toMutableList()
+        listaNombres.value = gestionFichero.readFile(fichero)
 
         //Esto lo que hace es si la lista tiene algo escrito dentro, carga la lazycolum con lo que tenga escrito dentro el fichero, si no, sale de la otra manera, vacia
     }
-
 
         Column (modifier = Modifier
             .fillMaxSize()
@@ -159,7 +162,7 @@ fun ventanaPrincipal(
             }
 
             Button(
-                onClick = { fichero.writeText(listaNombres.value.joinToString ( "\n")) },
+                onClick = { gestionFichero.writeFile(listaNombres.value.joinToString ( "\n"), fichero) },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
             ){
