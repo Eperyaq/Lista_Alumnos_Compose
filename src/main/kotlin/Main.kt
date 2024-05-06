@@ -307,7 +307,7 @@ fun ventanaDB(
                         .height(220.dp)
                         .padding(10.dp)
                 ) {
-                    items(listaNombres.value){
+                    items(viewModel.showStudent()){
                         Text(
                             text = "$it", //Para ponerlo en mayus
                             fontSize = 18.sp,

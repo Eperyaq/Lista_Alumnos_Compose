@@ -31,7 +31,11 @@ object DataBase {
         }
     }
 
-    data class Estudiante(val name: String, val id:Int) //Crear la "tabla"
+    data class Estudiante(val name: String, val id:Int){ //Crear la "tabla"
+        override fun toString(): String {
+            return name
+        }
+    }
 
     /**
      * Funcion que establece la conexion con la base de datos
@@ -98,7 +102,7 @@ object DataBase {
             while (resultado?.next() == true){
 
                 val idStudent = resultado.getInt("id")//Saca el id y lo mete en la tabla
-                val nameStudent = resultado.getString("nombre") //Este saca el nombre y lo mete en la tabla
+                val nameStudent = resultado.getString("name") //Este saca el nombre y lo mete en la tabla
                 listaEstudiante.add(Estudiante(nameStudent, idStudent))
             }
             resultado?.close()
