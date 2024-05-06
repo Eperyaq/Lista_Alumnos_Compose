@@ -8,9 +8,27 @@ object DataBase {
     const val URL = "jdbc:mysql://localhost:3306/studentdb"
     const val USUARIO = "studentuser"
     const val CONTRASENIA = "password"
+    var id = 0 //Id autoincremental
 
     init {
-        Class.forName("com.mysql.cj.jdbc.Driver")
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver") //Peta.
+        } catch (e: LinkageError){
+            e.printStackTrace()
+        } catch (e: ExceptionInInitializerError){
+            e.printStackTrace()
+        } catch (e: ClassNotFoundException){
+            e.printStackTrace()
+        }
+
+
+        var conexion : Connection? = null //Ahora que tengo esto no deberia hacerlo en cada funcion o esto está mal??
+        try {
+           conexion = connectDB()
+            conexion?.autoCommit = false
+        } catch (e: SQLException) {
+            e.printStackTrace()
+        }
     }
 
     data class Estudiante(val name: String, val id:Int) //Crear la "tabla"
@@ -67,7 +85,7 @@ object DataBase {
     /**
      * Realiza una sentencia SELECT para sacar todos los estudiantes de la DB
      */
-    fun selectAllStudents(){
+    fun selectAllStudents(): MutableList<Estudiante>{
 
         val conexion = connectDB()
         val query = "SELECT * FROM STUDENTS"
@@ -91,7 +109,7 @@ object DataBase {
         }  finally {
             closeDB(conexion)
         }
-
+        return listaEstudiante
     }
 
     /**
@@ -99,7 +117,7 @@ object DataBase {
      * @param id ID nuevo que va a ser introducido en la tabla
      * @param name Nombre nuevo que va a ser introducido en la tabla
      */
-    fun updateStudents(id:Int, name:String){
+    fun updateStudents(name:String){
 
         val conexion = connectDB()
         val query = ("UPDATE STUDENTS SET ID = ?, NAME = ?")
@@ -108,7 +126,6 @@ object DataBase {
             val statement = conexion?.prepareStatement(query)//realizamos la conexion
 
             statement?.setString(1, name)//le introducimos los valores
-            statement?.setInt(2, id)
 
             statement?.executeUpdate()//le decimos que se ejecute
             statement?.close() // y que cierre
@@ -141,6 +158,22 @@ object DataBase {
             closeDB(conexion)
         }
 
+    }
+
+    fun commit(){
+        val conexion = connectDB()
+        try {
+            conexion?.commit()
+        } catch (e: SQLException){
+            e.printStackTrace()
+        } finally {
+            closeDB(conexion)
+        }
+
+    }
+
+    fun autoId(): Int{
+        return id++
     }
 
 }
